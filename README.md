@@ -25,7 +25,7 @@ Entrega feedback constructivo en tiempo real para que el presentador mejore.
 
 ## Requisitos
 
-- Docker y Docker Compose
+- Docker
 
 ## Instalación
 
