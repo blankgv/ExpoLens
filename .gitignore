@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.env
+weights/*.bin
+weights/*.gguf
+.venv/
+.devcontainer/
+expolens.egg-info/
+USE_CASES.md
