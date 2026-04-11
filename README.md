@@ -30,7 +30,7 @@ Entrega feedback constructivo en tiempo real para que el presentador mejore.
 ## Instalación
 
 ```bash
-git clone <tu-repo>
+git clone https://github.com/blankgv/ExpoLens.git
 cd expolens
 cp .env.example .env
 docker compose up --build
