@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     app_name: str = "ExpoLens"
     environment: str
     log_level: str
+    api_key: str
 
     # Pipeline
     feedback_interval_seconds: float = 10.0
