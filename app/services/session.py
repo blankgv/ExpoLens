@@ -32,6 +32,13 @@ class SessionService:
             raise KeyError(f"Sesión {session_id} no encontrada")
         session["status"] = SessionStatus.FINISHED
         return self._to_response(session)
+    
+    async def set_active(self, session_id: str) -> SessionResponse:
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        session["status"] = SessionStatus.ACTIVE
+        return self._to_response(session)
 
     def _to_response(self, session: dict) -> SessionResponse:
         duration = time.time() - session["created_at"]
