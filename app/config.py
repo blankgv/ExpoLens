@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
     app_name: str = "ExpoLens"
     environment: str
     log_level: str
@@ -17,9 +19,6 @@ class Settings(BaseSettings):
         "este", "o sea", "vale", "no sé", "bueno", "digamos",
         "em", "eh", "nove", "básicamente", "literalmente",
     ]
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
