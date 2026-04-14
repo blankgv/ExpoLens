@@ -1,0 +1,89 @@
+{
+  "description": "Diccionario de palabras y expresiones de relleno en español",
+  "version": "1.0.0",
+  "categories": {
+    "muletillas_comunes": [
+      "este",
+      "esto",
+      "pues",
+      "bueno",
+      "vale",
+      "dale",
+      "mira",
+      "oye",
+      "onda"
+    ],
+    "conectores_vacios": [
+      "o sea",
+      "es decir",
+      "en plan",
+      "tipo",
+      "como que",
+      "y eso",
+      "y tal",
+      "y nada",
+      "y bueno"
+    ],
+    "pausas_vocales": [
+      "eh",
+      "em",
+      "ah",
+      "uhm",
+      "mmm",
+      "eee",
+      "aam"
+    ],
+    "inseguridad": [
+      "no sé",
+      "digamos",
+      "supongo",
+      "creo que",
+      "tal vez",
+      "quizás",
+      "como que",
+      "más o menos",
+      "por así decirlo",
+      "en cierto modo"
+    ],
+    "redundancia": [
+      "básicamente",
+      "literalmente",
+      "obviamente",
+      "claramente",
+      "realmente",
+      "sinceramente",
+      "francamente",
+      "honestamente",
+      "la verdad",
+      "en realidad",
+      "de hecho"
+    ],
+    "regionalismos_latam": [
+      "nove",
+      "osea",
+      "ósea",
+      "nocierto",
+      "verdad",
+      "cachái",
+      "entendés",
+      "viste",
+      "dale",
+      "ta",
+      "po",
+      "wey",
+      "güey",
+      "pué"
+    ],
+    "relleno_nervioso": [
+      "entonces",
+      "nada",
+      "total",
+      "al final",
+      "como te digo",
+      "es que",
+      "lo que pasa es que",
+      "a ver",
+      "cómo te explico"
+    ]
+  }
+}

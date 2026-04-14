@@ -8,9 +8,10 @@ def test_detect_fillers():
         "este bueno yo creo que o sea la defensa este fue bien"
     )
 
-    assert result.fillers.count == 4  # "este" x2, "bueno" x1, "o sea" x1
+    assert result.fillers.count == 5  # "este" x2, "bueno" x1, "creo que" x1, "o sea" x1
     assert result.fillers.words["este"] == 2
     assert result.fillers.words["bueno"] == 1
+    assert result.fillers.words["creo que"] == 1
     assert result.fillers.words["o sea"] == 1
     assert result.pace_wpm > 0
 
