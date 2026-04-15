@@ -3,24 +3,21 @@ FROM python:3.11-slim
 WORKDIR /code
 
 # Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
-    libglib2.0-0 \
-    libxcb1 \
-    libxext6 \
-    libsm6 \
-    libgles2 \
-    libegl1 \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+COPY requirements.system .
+RUN apt-get update && \
+    xargs -a requirements.system apt-get install -y --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
 # Instalar uv
 RUN pip install uv
 
-# Copiar archivo de dependencias
-COPY pyproject.toml .
+# Instalar dependencias en /opt/venv (fuera de /code para que el volumen no lo pise)
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --extra dev
 
-# Instalar dependencias
-RUN uv pip install --system -e ".[dev]"
+# Agregar el venv al PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copiar el código de la app
 COPY app/ app/
@@ -29,7 +26,7 @@ COPY scripts/ scripts/
 
 # Configurar entrypoint
 RUN chmod +x scripts/*.sh
-ENTRYPOINT ["scripts/entrypoint.sh"]
+ENTRYPOINT ["/code/scripts/entrypoint.sh"]
 
 EXPOSE 8000
 

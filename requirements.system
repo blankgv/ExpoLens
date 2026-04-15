@@ -1,0 +1,9 @@
+libgl1
+libglib2.0-0
+libxcb1
+libxext6
+libsm6
+libgles2
+libegl1
+libgomp1
+curl

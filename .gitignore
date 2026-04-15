@@ -6,4 +6,5 @@ weights/
 .venv/
 .devcontainer/
 expolens.egg-info/
+.pytest_cache/
 USE_CASES.md
