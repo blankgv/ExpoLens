@@ -1,8 +1,14 @@
+import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 
 from app.config import settings
 from app.services.session import session_service
-from app.models.session import SessionStatus
+from app.pipelines.video import VideoPipeline
+from app.pipelines.audio import AudioPipeline
+from app.pipelines.aggregator import MetricsAggregator
+from app.llm.engine import FeedbackEngine
+from app.models.feedback import FeedbackResponse
 
 router = APIRouter(tags=["streaming"])
 
@@ -11,7 +17,7 @@ router = APIRouter(tags=["streaming"])
 async def stream(websocket: WebSocket, session_id: str):
     """Recibir frames video+audio y devolver feedback en tiempo real."""
 
-    # Verificar API key antes de aceptar la conexión
+    # Verificar API key
     api_key = websocket.headers.get("x-api-key")
     if api_key != settings.api_key:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="API key inválida")
@@ -19,15 +25,19 @@ async def stream(websocket: WebSocket, session_id: str):
 
     # Verificar que la sesión existe
     try:
-        session = await session_service.get(session_id)
+        await session_service.get(session_id)
     except KeyError:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Sesión no encontrada")
         return
 
     await websocket.accept()
-
-    # Marcar sesión como activa
     await session_service.set_active(session_id)
+
+    # Inicializar pipelines
+    video_pipeline = VideoPipeline()
+    audio_pipeline = AudioPipeline()
+    aggregator = MetricsAggregator(window_seconds=settings.metrics_window_seconds)
+    feedback_engine = FeedbackEngine()
 
     try:
         while True:
@@ -36,21 +46,33 @@ async def stream(websocket: WebSocket, session_id: str):
             if len(data) < 2:
                 continue
 
-            # Primer byte indica el tipo de dato
             data_type = data[0]
             payload = data[1:]
 
             if data_type == 0x01:
-                # Video frame → pipeline de video
-                # TODO: CU-03 - procesar con MediaPipe
-                pass
-            elif data_type == 0x02:
-                # Audio chunk → pipeline de audio
-                # TODO: CU-04 - procesar con Whisper
-                pass
+                # Video frame
+                video_metrics = video_pipeline.process_frame(payload)
+                aggregator.push_video(video_metrics)
 
-            # TODO: CU-05 - cada N segundos, agregar métricas y enviar feedback
-            # await websocket.send_json(feedback_response.model_dump())
+            elif data_type == 0x02:
+                # Audio: el payload es texto transcrito (por ahora)
+                transcript = payload.decode("utf-8", errors="ignore")
+                if transcript.strip():
+                    speech_metrics = audio_pipeline.process_transcript(transcript)
+                    aggregator.push_audio(speech_metrics)
+
+            # Verificar si toca generar feedback
+            if aggregator.should_aggregate():
+                metrics = aggregator.aggregate()
+                feedbacks = feedback_engine.generate(metrics)
+
+                response = FeedbackResponse(
+                    session_id=session_id,
+                    feedbacks=feedbacks,
+                )
+
+                await websocket.send_json(response.model_dump())
 
     except WebSocketDisconnect:
+        video_pipeline.release()
         await session_service.finish(session_id)
