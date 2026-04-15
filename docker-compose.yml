@@ -7,5 +7,6 @@ services:
       #- ./app:/code/app
       #- ./tests:/code/tests
       - .:/code
+      - ./weights:/code/weights
     env_file:
       - .env

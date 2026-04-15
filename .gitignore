@@ -1,8 +1,8 @@
 __pycache__/
 *.pyc
 .env
-weights/*.bin
-weights/*.gguf
+weights/
+!weights/.gitkeep
 .venv/
 .devcontainer/
 expolens.egg-info/
