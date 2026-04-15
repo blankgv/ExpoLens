@@ -21,3 +21,15 @@ class SessionResponse(BaseModel):
     context: str
     created_at: float
     duration_seconds: float = 0.0
+
+
+class SessionReport(BaseModel):
+    session_id: str
+    duration_seconds: float
+    summary: str
+    total_fillers: dict[str, int] = {}
+    avg_posture_score: float = 0.0
+    avg_eye_contact: float = 0.0
+    avg_pace_wpm: float = 0.0
+    feedbacks: list[dict] = []
+    recommendations: list[str] = []

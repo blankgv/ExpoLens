@@ -1,7 +1,10 @@
+import time
+
 from fastapi import APIRouter, HTTPException
 
-from app.models.session import SessionCreate, SessionResponse
+from app.models.session import SessionCreate, SessionResponse, SessionReport
 from app.services.session import session_service
+from app.services.reporter import reporter_service
 
 router = APIRouter(tags=["sessions"])
 
@@ -40,7 +43,12 @@ async def get_metrics(session_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/sessions/{session_id}/report")
+@router.get("/sessions/{session_id}/report", response_model=SessionReport)
 async def get_report(session_id: str):
-    """CU-07: Reporte final."""
-    return {"message": "TODO: CU-07"}
+    """Generar reporte final de la sesión."""
+    try:
+        session_data = await session_service.get_raw(session_id)
+        session_data["duration_seconds"] = time.time() - session_data["created_at"]
+        return reporter_service.generate(session_data)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e))
