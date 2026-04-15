@@ -66,6 +66,13 @@ async def stream(websocket: WebSocket, session_id: str):
                 metrics = aggregator.aggregate()
                 feedbacks = feedback_engine.generate(metrics)
 
+                # Guardar en la sesión
+                await session_service.push_metrics(session_id, metrics)
+                await session_service.push_feedbacks(
+                    session_id,
+                    [f.model_dump() for f in feedbacks],
+                )
+
                 response = FeedbackResponse(
                     session_id=session_id,
                     feedbacks=feedbacks,

@@ -2,6 +2,7 @@ import time
 import uuid
 
 from app.models.session import SessionCreate, SessionResponse, SessionStatus
+from app.models.metrics import AggregatedMetrics
 
 
 class SessionService:
@@ -16,6 +17,8 @@ class SessionService:
             "presenter_name": data.presenter_name,
             "context": data.context,
             "created_at": time.time(),
+            "metrics_history": [],
+            "feedbacks_history": [],
         }
         self._sessions[session_id] = session
         return self._to_response(session)
@@ -26,19 +29,44 @@ class SessionService:
             raise KeyError(f"Sesión {session_id} no encontrada")
         return self._to_response(session)
 
-    async def finish(self, session_id: str) -> SessionResponse:
-        session = self._sessions.get(session_id)
-        if not session:
-            raise KeyError(f"Sesión {session_id} no encontrada")
-        session["status"] = SessionStatus.FINISHED
-        return self._to_response(session)
-    
     async def set_active(self, session_id: str) -> SessionResponse:
         session = self._sessions.get(session_id)
         if not session:
             raise KeyError(f"Sesión {session_id} no encontrada")
         session["status"] = SessionStatus.ACTIVE
         return self._to_response(session)
+
+    async def finish(self, session_id: str) -> SessionResponse:
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        session["status"] = SessionStatus.FINISHED
+        return self._to_response(session)
+
+    async def push_metrics(self, session_id: str, metrics: AggregatedMetrics) -> None:
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        session["metrics_history"].append(metrics.model_dump())
+
+    async def push_feedbacks(self, session_id: str, feedbacks: list[dict]) -> None:
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        session["feedbacks_history"].extend(feedbacks)
+
+    async def get_metrics(self, session_id: str) -> list[dict]:
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        return session["metrics_history"]
+
+    async def get_raw(self, session_id: str) -> dict:
+        """Devuelve los datos internos de la sesión."""
+        session = self._sessions.get(session_id)
+        if not session:
+            raise KeyError(f"Sesión {session_id} no encontrada")
+        return session
 
     def _to_response(self, session: dict) -> SessionResponse:
         duration = time.time() - session["created_at"]

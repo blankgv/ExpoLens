@@ -28,3 +28,19 @@ async def finish_session(session_id: str):
         return await session_service.finish(session_id)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/sessions/{session_id}/metrics")
+async def get_metrics(session_id: str):
+    """Obtener métricas acumuladas de una sesión."""
+    try:
+        metrics = await session_service.get_metrics(session_id)
+        return {"session_id": session_id, "total_windows": len(metrics), "metrics": metrics}
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/sessions/{session_id}/report")
+async def get_report(session_id: str):
+    """CU-07: Reporte final."""
+    return {"message": "TODO: CU-07"}
